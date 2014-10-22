@@ -19,11 +19,7 @@ module Slugger
       self.slugger_options = default_options.merge(options)
       self.slugger_options[:title_column] = title_column unless title_column.nil?
 
-      if defined?(Rails) == 'constant' && Rails.class == Module && defined?(ActiveRecord::Migrator::CheckPending) == 'constant'
-        migrator = ActiveRecord::Migrator.new(:up, Rails.root.join(ActiveRecord::Migrator.migrations_path))
-      else
-        migrator = ActiveRecord::Migrator.new(:up, ActiveRecord::Migrator.migrations_path)
-      end
+      migrator = ActiveRecord::Migrator.new(:up, [])
 
       if table_exists? && migrator.pending_migrations.blank? && columns_hash[slugger_options[:slug_column].to_s].nil?
         raise ArgumentError, "#{self.name} is missing required " +
