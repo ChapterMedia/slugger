@@ -19,26 +19,6 @@ module Slugger
       self.slugger_options = default_options.merge(options)
       self.slugger_options[:title_column] = title_column unless title_column.nil?
 
-      a_migration_path = ActiveRecord::Migrator.migrations_paths.first
-
-      the_migrations = begin 
-        version = ActiveRecord::VERSION::STRING
-        if version >= "5.2."
-          migrations = ActiveRecord::MigrationContext.new(a_migration_path).migrations
-        elsif version < "4.0."
-          migrations = a_migration_path
-        else # version >= "4.0."
-          migrations = ActiveRecord::Migrator.migrations(a_migration_path)
-        end
-      end
-
-      migrator = ActiveRecord::Migrator.new(:up, the_migrations)
-
-      if table_exists? && migrator.pending_migrations.blank? && columns_hash[slugger_options[:slug_column].to_s].nil?
-        raise ArgumentError, "#{self.name} is missing required " +
-                             "#{slugger_options[:slug_column]} column"
-      end
-
       before_validation :permalize,          :on => :create
       before_validation :permalize_on_blank, :on => :update
 
